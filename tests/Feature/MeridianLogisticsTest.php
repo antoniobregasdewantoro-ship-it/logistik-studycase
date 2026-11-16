@@ -1237,4 +1237,69 @@ class MeridianLogisticsTest extends TestCase
 
         $response->assertSessionHasErrors('file_excel');
     }
+
+    /**
+     * Test import Excel dapat memperbarui data pesanan yang diubah dari format file Export Excel
+     */
+    public function test_import_excel_updates_existing_order_when_modified_in_exported_format(): void
+    {
+        // 1. Ambil order yang sudah ada di database
+        $order = Order::first();
+        $this->assertNotNull($order);
+        $originalResi = $order->tracking_number;
+
+        $import = new ManifestImport;
+
+        // 2. Simulasikan baris dari file Export Excel (menggunakan header no_resi, pengirim, rute_tujuan, berat_kg, tarif_rp)
+        // yang diubah nilainya oleh user di Excel
+        $modifiedRow = [
+            'id' => $order->id,
+            'no_resi' => $originalResi,
+            'pengirim' => 'Nama Pengirim Baru dari Excel',
+            'penerima' => 'Penerima Baru',
+            'rute_asal' => 'Malang',
+            'rute_tujuan' => 'Yogyakarta',
+            'berat_kg' => '25,50',
+            'layanan' => 'Express',
+            'tarif_rp' => '382.500',
+            'status' => 'Dalam Perjalanan',
+        ];
+
+        $updatedOrder = $import->model($modifiedRow);
+        $this->assertNotNull($updatedOrder);
+
+        // 3. Verifikasi data di database tabel orders ikut berubah sesuai isi file Excel
+        $refreshedOrder = $order->fresh();
+        $this->assertEquals('Nama Pengirim Baru dari Excel', $refreshedOrder->sender_name);
+        $this->assertEquals('Yogyakarta', $refreshedOrder->destination);
+        $this->assertEquals('Malang', $refreshedOrder->origin);
+        $this->assertEquals(25.5, (float) $refreshedOrder->weight);
+        $this->assertEquals(382500, (float) $refreshedOrder->price);
+        $this->assertEquals('Express', $refreshedOrder->service_type);
+        $this->assertEquals('Dalam Perjalanan', $refreshedOrder->status);
+
+        // 4. Test menambahkan baris baru di bawah tabel Excel (tanpa resi) otomatis dibuatkan order baru
+        $newBottomRow = [
+            'pengirim' => 'Pelanggan Baris Baru Bawah',
+            'penerima' => 'Penerima Baris Baru',
+            'rute_asal' => 'Sidoarjo',
+            'rute_tujuan' => 'Denpasar',
+            'berat_kg' => '10',
+            'layanan' => 'Reguler',
+            'tarif_rp' => '90.000',
+            'status' => 'Verifikasi',
+        ];
+
+        $newOrder = $import->model($newBottomRow);
+        $this->assertNotNull($newOrder);
+        $newOrder->save();
+
+        $this->assertDatabaseHas('orders', [
+            'sender_name' => 'Pelanggan Baris Baru Bawah',
+            'destination' => 'Denpasar',
+            'service_type' => 'Reguler',
+            'status' => 'Verifikasi',
+        ]);
+        $this->assertTrue(str_starts_with($newOrder->tracking_number, 'ORD-'));
+    }
 }
