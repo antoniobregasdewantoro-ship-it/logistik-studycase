@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CourierController;
+use App\Http\Controllers\ExcelController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\LaporanController;
 use App\Models\Branch;
@@ -120,6 +121,11 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     // Kode ini untuk mengimpor data manifest pesanan secara massal dari file Excel (.xlsx, .xls, .csv)
     Route::post('/orders/import-excel', [AdminController::class, 'importExcel'])->name('import.excel');
+
+    // Kode ini untuk rute tambahan export manifest, download template, dan import pesanan via ExcelController
+    Route::get('/excel/export', [ExcelController::class, 'exportOrders'])->name('excel.export');
+    Route::get('/excel/template', [ExcelController::class, 'downloadTemplate'])->name('excel.template');
+    Route::post('/excel/import', [ExcelController::class, 'importOrders'])->name('excel.import');
 
     // Kode ini untuk memperbarui data manifest, alamat tujuan lengkap, checkpoint, bobot kargo, dan koordinat GPS
     Route::put('/orders/{id}/update', [AdminController::class, 'updateOrder'])->name('orders.update');
