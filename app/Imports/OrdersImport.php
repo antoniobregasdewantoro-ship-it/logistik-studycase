@@ -69,7 +69,7 @@ class OrdersImport implements SkipsEmptyRows, ToCollection, WithHeadingRow, With
     /**
      * Proses import data dari collection baris Excel.
      */
-    public function collection(Collection $rows)
+    public function collection(Collection $rows): void
     {
         // Harga per Kg berdasarkan layanan
         $rates = [

@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\Order;
+use Illuminate\Support\Enumerable;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -19,7 +20,7 @@ class OrdersExport implements FromCollection, WithColumnWidths, WithHeadings, Wi
     /**
      * Ambil seluruh data pesanan beserta relasi customer & courier.
      */
-    public function collection()
+    public function collection(): Enumerable
     {
         return Order::with(['customer', 'courier'])->latest()->get();
     }
