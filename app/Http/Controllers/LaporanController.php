@@ -11,12 +11,13 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response;
 
 class LaporanController extends Controller
 {
     // Method untuk export data barang / manifest pengiriman ke file Excel (.xlsx)
-    public function exportExcelBarang()
+    public function exportExcelBarang(): BinaryFileResponse
     {
         return Excel::download(
             new BarangExport,
@@ -25,7 +26,7 @@ class LaporanController extends Controller
     }
 
     // Method untuk export data transaksi & keuangan ke file Excel (.xlsx)
-    public function exportExcelTransaksi()
+    public function exportExcelTransaksi(): BinaryFileResponse
     {
         return Excel::download(
             new TransaksiExport,
@@ -34,7 +35,7 @@ class LaporanController extends Controller
     }
 
     // Method umum untuk export excel (mendukung route laporan.excel)
-    public function exportExcel(Request $request)
+    public function exportExcel(Request $request): BinaryFileResponse
     {
         return $this->exportExcelBarang();
     }

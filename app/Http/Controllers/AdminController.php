@@ -18,6 +18,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class AdminController extends Controller
 {
@@ -760,7 +761,7 @@ class AdminController extends Controller
     /**
      * Kode ini untuk mengekspor data barang / manifest ke file Excel (.xlsx)
      */
-    public function exportExcelBarang()
+    public function exportExcelBarang(): BinaryFileResponse
     {
         return Excel::download(new BarangExport, 'laporan-barang-'.date('Y-m-d').'.xlsx');
     }
@@ -768,7 +769,7 @@ class AdminController extends Controller
     /**
      * Kode ini untuk mengekspor data transaksi & omset ke file Excel (.xlsx)
      */
-    public function exportExcelTransaksi()
+    public function exportExcelTransaksi(): BinaryFileResponse
     {
         return Excel::download(new TransaksiExport, 'laporan-transaksi-'.date('Y-m-d').'.xlsx');
     }
@@ -776,7 +777,7 @@ class AdminController extends Controller
     /**
      * Kode ini untuk export Excel umum (mendukung unduhan data logistik).
      */
-    public function exportExcel(Request $request)
+    public function exportExcel(Request $request): BinaryFileResponse
     {
         return $this->exportExcelBarang();
     }
