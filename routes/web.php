@@ -6,6 +6,7 @@ use App\Http\Controllers\CourierController;
 use App\Http\Controllers\ExcelController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\LaporanController;
+use App\Models\Barang;
 use App\Models\Branch;
 use App\Models\Order;
 use Illuminate\Support\Facades\Route;
@@ -28,6 +29,17 @@ Route::get('/', [LandingController::class, 'index'])->name('home');
 // Kode ini untuk menampilkan halaman pelacakan resi real-time & peta GPS checkpoint pengiriman
 Route::get('/lacak', [LandingController::class, 'trackingPage'])->name('tracking');
 Route::get('/tracking', [LandingController::class, 'trackingPage']); // Kode ini untuk alias rute URL tracking
+
+// Kode ini untuk menampilkan Halaman Detail Barang & Implementasi Milon Barcode Code 39 (Sesuai Slide 11 & 12 Arahan Dosen)
+Route::get('/barang/{id}', function ($id) {
+    $barang = Barang::findOrFail($id);
+    $size = request('size', '3x100');
+    $parts = explode('x', $size);
+    $w = isset($parts[0]) && is_numeric($parts[0]) ? (int) $parts[0] : 3;
+    $h = isset($parts[1]) && is_numeric($parts[1]) ? (int) $parts[1] : 100;
+
+    return view('pages.barang.show', compact('barang', 'w', 'h', 'size'));
+})->name('barang.show');
 
 // Kode ini untuk API kalkulasi estimasi tarif ongkir otomatis berdasarkan berat dan jenis layanan
 Route::post('/api/calculate-tariff', [LandingController::class, 'calculateTariffApi'])->name('api.tariff');

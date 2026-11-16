@@ -12,6 +12,7 @@
         "laravel/socialite": "^5.31",
         "laravel/tinker": "^3.0",
         "maatwebsite/excel": "*",
+        "milon/barcode": "^13.6",
         "picqer/php-barcode-generator": "^3.3"
     },
     "require-dev": {

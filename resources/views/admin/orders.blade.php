@@ -102,7 +102,7 @@
                             <!-- Resi & Tanggal -->
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-3">
-                                    <button type="button" onclick="showBarcodeModal('{{ $order->tracking_number }}', '{{ $order->barcode_url }}', '{{ addslashes($order->sender_name) }}', '{{ addslashes($order->destination) }}')"
+                                    <button type="button" onclick="showBarcodeModal('{{ $order->tracking_number }}', '{{ $order->barcode_url }}', '{{ addslashes($order->sender_name) }}', '{{ addslashes($order->destination) }}', '{{ $order->id }}', '{{ $order->kode_barang }}')"
                                             class="w-16 h-8 rounded-lg bg-white border border-slate-200 p-0.5 flex items-center justify-center hover:border-[#FF6B00] transition shadow-xs shrink-0" title="Lihat Barcode Resi">
                                         <img src="{{ $order->barcode_url }}" alt="Barcode" class="w-full h-full object-contain">
                                     </button>
@@ -229,14 +229,22 @@
                             <!-- Aksi (Hanya Lihat Barcode dan Hapus Sesuai Permintaan) -->
                             <td class="px-6 py-4 text-center">
                                 <div class="flex items-center justify-center gap-2">
-                                    <!-- 1. Print / Lihat Label Barcode Resi (1D Code 128) -->
-                                    <button type="button" onclick="showBarcodeModal('{{ $order->tracking_number }}', '{{ $order->barcode_url }}', '{{ addslashes($order->sender_name) }}', '{{ addslashes($order->destination) }}')"
+                                    <!-- 1. Print / Lihat Label Barcode Resi (1D Code 39) -->
+                                    <button type="button" onclick="showBarcodeModal('{{ $order->tracking_number }}', '{{ $order->barcode_url }}', '{{ addslashes($order->sender_name) }}', '{{ addslashes($order->destination) }}', '{{ $order->id }}', '{{ $order->kode_barang }}')"
                                             title="Lihat Barcode Resi"
                                             class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs transition">
                                         <i class="fa-solid fa-barcode text-sm"></i>
                                     </button>
 
-                                    <!-- 2. Hapus Pesanan (Buka Modal Konfirmasi Modern) -->
+                                    <!-- 2. Halaman Detail Barang & Barcode ID (Slide 12 Materi Dosen) -->
+                                    <a href="{{ route('barang.show', $order->id) }}"
+                                       target="_blank"
+                                       title="Detail Barang & Barcode ID (Materi Dosen)"
+                                       class="p-2 rounded-xl bg-orange-50 hover:bg-orange-100 text-[#FF6B00] text-xs transition">
+                                        <i class="fa-solid fa-eye text-sm"></i>
+                                    </a>
+
+                                    <!-- 3. Hapus Pesanan (Buka Modal Konfirmasi Modern) -->
                                     <button type="button" onclick="openDeleteOrderModal('{{ $order->id }}', '{{ $order->tracking_number }}')"
                                             title="Hapus Pesanan"
                                             class="p-2 rounded-xl bg-slate-100 hover:bg-rose-100 text-slate-400 hover:text-rose-600 text-xs transition">
@@ -506,9 +514,16 @@
             <h4 id="barcodeModalResi" class="text-lg font-black font-mono text-[#0A1128] tracking-wider mb-3">MRD-48207</h4>
 
             <div class="text-left text-xs bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-1">
+                <p><span class="text-slate-400 font-semibold">Kode ID Barang:</span> <span id="barcodeModalKodeBarang" class="font-bold font-mono text-[#0A1128]">INV-00001</span></p>
                 <p><span class="text-slate-400 font-semibold">Pengirim:</span> <span id="barcodeModalSender" class="font-bold text-slate-800">Ahmad Fauzi</span></p>
                 <p><span class="text-slate-400 font-semibold">Tujuan:</span> <span id="barcodeModalDestination" class="font-bold text-[#FF6B00]">Surabaya</span></p>
             </div>
+
+            <a id="barcodeModalDetailLink" href="#" target="_blank"
+               class="mt-3 inline-flex items-center gap-1.5 text-[11px] font-bold text-indigo-600 hover:text-indigo-800">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                <span>Lihat Tampilan Detail Barang (Slide Dosen)</span>
+            </a>
         </div>
 
         <div class="mt-5 flex items-center justify-center gap-3">
@@ -627,11 +642,22 @@
         document.getElementById('modalConfirmDeleteOrder').classList.add('hidden');
     }
 
-    function showBarcodeModal(resi, barcodeUrl, sender, destination) {
+    function showBarcodeModal(resi, barcodeUrl, sender, destination, orderId, kodeBarang) {
         document.getElementById('barcodeModalResi').textContent = resi;
         document.getElementById('barcodeModalImage').src = barcodeUrl;
         document.getElementById('barcodeModalSender').textContent = sender || 'Pelanggan';
         document.getElementById('barcodeModalDestination').textContent = destination || '-';
+        if (document.getElementById('barcodeModalKodeBarang')) {
+            document.getElementById('barcodeModalKodeBarang').textContent = kodeBarang || ('INV-' + String(orderId || '1').padStart(5, '0'));
+        }
+        if (document.getElementById('barcodeModalDetailLink')) {
+            if (orderId) {
+                document.getElementById('barcodeModalDetailLink').href = '/barang/' + orderId;
+                document.getElementById('barcodeModalDetailLink').classList.remove('hidden');
+            } else {
+                document.getElementById('barcodeModalDetailLink').classList.add('hidden');
+            }
+        }
         document.getElementById('modalBarcodeLabel').classList.remove('hidden');
     }
 

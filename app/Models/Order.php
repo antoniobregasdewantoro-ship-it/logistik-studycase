@@ -155,14 +155,79 @@ class Order extends Model
     }
 
     /**
-     * Get Barcode 1D (Code 128) khusus untuk Nomor Resi Pengiriman Paket
+     * Accessor: Kode Barang dari kolom ID sesuai arahan & modul dosen (Slide 6 & 7)
+     * Format: INV-00001 (5 digit angka ber-padding nol)
+     */
+    public function getKodeBarangAttribute(): string
+    {
+        return 'INV-'.str_pad((string) $this->id, 5, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Method: Barcode 1D Code 39 HTML menggunakan Milon Barcode DNS1D (Slide 6, 8, 9, 10, 13)
+     * Output berupa string HTML murni (elemen div hitam) tanpa memerlukan file fisik / ext-gd.
+     * Digunakan khusus untuk Barcode Identitas Barang / Resi Pengiriman.
+     *
+     * @param  int  $width  Ketebalan tiap garis vertikal (default: 3)
+     * @param  int  $height  Panjang garis vertikal dari atas ke bawah (default: 100)
+     */
+    public function barcodeHtml(int $width = 3, int $height = 100): string
+    {
+        return \DNS1D::getBarcodeHTML($this->kode_barang, 'C39', $width, $height);
+    }
+
+    /**
+     * Method: Barcode 1D Code 39 HTML khusus nomor resi pengiriman (tracking_number)
+     */
+    public function barcodeResiHtml(int $width = 2, int $height = 50): string
+    {
+        $code = strtoupper(preg_replace('/[^A-Z0-9\-]/i', '', (string) ($this->tracking_number ?: $this->kode_barang)));
+
+        return \DNS1D::getBarcodeHTML($code, 'C39', $width, $height);
+    }
+
+    /**
+     * Accessor: Payload QRIS standar BI untuk verifikasi pembayaran
+     */
+    public function getQrisPayloadAttribute(): string
+    {
+        return '00020101021226670016ID.CO.MERIDIAN.WWW0118936009990000000001520454995303360540'.str_pad((string) ($this->id ?? 1), 6, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Method: QR Code 2D HTML menggunakan Milon Barcode DNS2D (Slide 13)
+     * Digunakan KHUSUS untuk Metode Pembayaran (QRIS) & Verifikasi Digital.
+     *
+     * @param  int  $width  Ukuran bujur sangkar (default: 5)
+     * @param  int  $height  Ukuran bujur sangkar (default: 5)
+     */
+    public function qrisHtml(int $width = 5, int $height = 5): string
+    {
+        return \DNS2D::getBarcodeHTML($this->qris_payload, 'QRCODE', $width, $height);
+    }
+
+    /**
+     * Method: QR Code 2D HTML umum menggunakan Milon Barcode DNS2D
+     */
+    public function qrCodeHtml(?string $data = null, int $width = 5, int $height = 5): string
+    {
+        $payload = $data ?: url('/lacak?tracking='.$this->tracking_number);
+
+        return \DNS2D::getBarcodeHTML($payload, 'QRCODE', $width, $height);
+    }
+
+    /**
+     * Get Barcode 1D (Code 39 / Code 128) khusus untuk Nomor Resi Pengiriman Paket
      * Digunakan pada label thermal resi pengiriman, scanner barcode kurir, dan tabel pesanan.
      */
     public function getBarcodeUrlAttribute(): string
     {
-        $code = trim((string) ($this->tracking_number ?: 'MRD-00000'));
+        $code = strtoupper(preg_replace('/[^A-Z0-9\-]/i', '', (string) ($this->tracking_number ?: $this->kode_barang)));
 
         try {
+            if (class_exists(\DNS1D::class)) {
+                return 'data:image/png;base64,'.\DNS1D::getBarcodePNG($code, 'C39', 2, 45);
+            }
             if (class_exists(BarcodeGeneratorPNG::class)) {
                 $generator = new BarcodeGeneratorPNG;
                 $barcode = $generator->getBarcode($code, BarcodeGeneratorPNG::TYPE_CODE_128, 2, 45);
@@ -173,7 +238,7 @@ class Order extends Model
             // Fallback ke generator online jika library terkendala
         }
 
-        return 'https://bwipjs-api.metafloor.com/?bcid=code128&text='.urlencode($code).'&scale=2&height=12&includetext';
+        return 'https://bwipjs-api.metafloor.com/?bcid=code39&text='.urlencode($code).'&scale=2&height=12&includetext';
     }
 
     /**
@@ -182,7 +247,7 @@ class Order extends Model
      */
     public function getQrCodeUrlAttribute(): string
     {
-        $data = urlencode(url('/?tracking='.$this->tracking_number));
+        $data = urlencode(url('/lacak?tracking='.$this->tracking_number));
 
         return "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={$data}";
     }

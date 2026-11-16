@@ -1102,10 +1102,16 @@ class MeridianLogisticsTest extends TestCase
     public function test_google_login_works_properly_with_role_based_redirect(): void
     {
         // 1. When Google user is courier (e.g. keonho ganteng), redirect to courier tasks, not customer dashboard
-        $googleUser = User::where('email', 'google.user@meridian.com')->first();
-        if ($googleUser) {
-            $googleUser->update(['role' => 'courier']);
-        }
+        $googleUser = User::firstOrCreate(
+            ['email' => 'google.user@meridian.com'],
+            [
+                'name' => 'Kurir Demo Google',
+                'password' => bcrypt('password123'),
+                'role' => 'courier',
+                'courier_status' => 'online',
+            ]
+        );
+        $googleUser->update(['role' => 'courier']);
 
         $res1 = $this->get(route('auth.google'));
         $res1->assertRedirect(route('courier.tasks'));

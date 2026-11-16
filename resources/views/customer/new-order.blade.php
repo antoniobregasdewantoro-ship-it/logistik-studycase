@@ -293,10 +293,10 @@
 
                         <!-- QR Code Pembayaran, Total Bayar & Jam Pembayaran Berjalan -->
                         <div class="flex flex-col sm:flex-row items-center gap-5">
-                            <!-- QR Code Box -->
+                            <!-- QR Code Box (Milon Barcode DNS2D 'QRCODE' Khusus Metode Pembayaran QRIS) -->
                             <div class="bg-white p-3 rounded-2xl shadow-lg border border-white/20 text-center shrink-0">
                                 <img id="qrisBarcodeImage"
-                                     src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=00020101021226670016ID.CO.MERIDIAN.WWW0118936009990000000001520454995303360540"
+                                     src="data:image/png;base64,{!! DNS2D::getBarcodePNG('00020101021226670016ID.CO.MERIDIAN.WWW0118936009990000000001520454995303360540', 'QRCODE', 6, 6) !!}"
                                      alt="QR Code QRIS"
                                      class="w-32 h-32 sm:w-36 sm:h-36 object-contain rounded-lg">
                                 <span class="block text-[8px] font-bold text-slate-600 mt-1 uppercase tracking-wider">Scan QRIS (BCA / Mandiri / GoPay / OVO / Dana)</span>
