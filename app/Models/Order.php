@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
+use Picqer\Barcode\BarcodeGeneratorPNG;
 
 /**
  * @mixin Builder
@@ -162,9 +163,9 @@ class Order extends Model
         $code = trim((string) ($this->tracking_number ?: 'MRD-00000'));
 
         try {
-            if (class_exists(\Picqer\Barcode\BarcodeGeneratorPNG::class)) {
-                $generator = new \Picqer\Barcode\BarcodeGeneratorPNG();
-                $barcode = $generator->getBarcode($code, \Picqer\Barcode\BarcodeGeneratorPNG::TYPE_CODE_128, 2, 45);
+            if (class_exists(BarcodeGeneratorPNG::class)) {
+                $generator = new BarcodeGeneratorPNG;
+                $barcode = $generator->getBarcode($code, BarcodeGeneratorPNG::TYPE_CODE_128, 2, 45);
 
                 return 'data:image/png;base64,'.base64_encode($barcode);
             }
