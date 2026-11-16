@@ -15,7 +15,7 @@
                 </a>
                 <div>
                     <h1 class="text-2xl font-black text-[#0A1128] dark:text-white tracking-tight">Detail Barang</h1>
-                    <p class="text-xs text-slate-500 dark:text-slate-400">Informasi lengkap data barang & implementasi Barcode Milon (DNS1D & DNS2D)</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Informasi lengkap data barang & barcode identitas barang inventaris (Code 39)</p>
                 </div>
             </div>
 
@@ -164,53 +164,33 @@
                     </div>
                 </div>
 
-                <!-- 2. CARD QR CODE 2D (Metode Pembayaran QRIS - DNS2D Sesuai Slide 13 & Penugasan 3) -->
-                <div class="bg-gradient-to-br from-[#0A1128] via-[#101935] to-[#0A1128] text-white p-6 rounded-3xl border border-[#FF6B00]/40 shadow-xl space-y-4">
-                    <div class="flex items-center justify-between pb-3 border-b border-white/10">
+                <!-- 2. CARD RINCIAN EKSPEDISI & RUTE PENGIRIMAN -->
+                <div class="bg-white dark:bg-[#0D1527] p-6 rounded-3xl border border-slate-200 dark:border-white/10 shadow-xs space-y-4">
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-white/10">
                         <div class="flex items-center gap-3">
-                            <span class="px-2.5 py-1 rounded-lg bg-[#FF6B00] text-white text-[10px] font-black tracking-wider uppercase shadow-md shadow-[#FF6B00]/30">
-                                QRIS
-                            </span>
+                            <div class="w-10 h-10 rounded-2xl bg-orange-50 dark:bg-orange-500/10 text-[#FF6B00] flex items-center justify-center text-lg font-bold">
+                                <i class="fa-solid fa-truck-fast"></i>
+                            </div>
                             <div>
-                                <h4 class="text-sm font-black text-white">QR Code 2D (DNS2D 'QRCODE')</h4>
-                                <p class="text-[10px] text-slate-400">Khusus Metode Pembayaran & Verifikasi Digital (Slide 13)</p>
+                                <h4 class="text-sm font-extrabold text-[#0A1128] dark:text-white">Rincian Ekspedisi & Rute</h4>
+                                <p class="text-[10px] text-slate-400">Informasi nomor resi dan distribusi paket</p>
                             </div>
                         </div>
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                            <span>Verifikasi Otomatis</span>
+                        <span class="font-mono text-xs font-black text-[#0A1128] dark:text-white bg-slate-100 dark:bg-white/10 px-2.5 py-1 rounded-lg">
+                            {{ $barang->tracking_number ?? 'MRD-00000' }}
                         </span>
                     </div>
 
-                    <div class="flex flex-col sm:flex-row items-center gap-6 pt-2">
-                        <!-- Kotak QR Code Milon DNS2D (Bujur Sangkar 5x5) -->
-                        <div class="bg-white p-4 rounded-2xl shadow-lg border border-white/20 text-center shrink-0">
-                            <div class="flex justify-center">
-                                {!! $barang->qrisHtml(4, 4) !!}
-                            </div>
-                            <span class="block text-[8px] font-black text-slate-700 mt-2 uppercase tracking-wider">
-                                Scan QRIS (BCA / Mandiri / GoPay / OVO / Dana)
-                            </span>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs pt-1">
+                        <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10 space-y-1">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Pengirim</span>
+                            <span class="font-bold text-slate-800 dark:text-slate-200 text-sm block">{{ $barang->sender_name ?? 'Pelanggan' }}</span>
+                            <span class="text-[11px] text-slate-500 block"><i class="fa-solid fa-location-dot text-[#FF6B00] mr-1"></i> {{ $barang->origin ?? '-' }}</span>
                         </div>
-
-                        <!-- Rincian Pembayaran & Bukti Pembedaan Fungsi -->
-                        <div class="flex-1 space-y-3">
-                            <div>
-                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Tagihan Pembayaran:</span>
-                                <div class="text-2xl font-black text-[#FF6B00]">
-                                    Rp {{ number_format($barang->price ?? 50000, 0, ',', '.') }}
-                                </div>
-                            </div>
-
-                            <div class="p-3 rounded-xl bg-white/5 border border-white/10 text-xs space-y-1">
-                                <p class="text-slate-300 font-semibold flex items-center gap-1.5">
-                                    <i class="fa-solid fa-code text-[#FF6B00]"></i> <strong>Pembedaan Fungsi:</strong>
-                                </p>
-                                <ul class="text-[11px] text-slate-300 list-disc list-inside space-y-0.5">
-                                    <li><strong>1D Barcode (Code 39):</strong> Khusus Resi & Identitas Fisik Barang (<code>{{ $barang->kode_barang }}</code>).</li>
-                                    <li><strong>2D QR Code:</strong> Khusus Metode Pembayaran QRIS Standar BI & Verifikasi Otomatis.</li>
-                                </ul>
-                            </div>
+                        <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10 space-y-1">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Penerima</span>
+                            <span class="font-bold text-slate-800 dark:text-slate-200 text-sm block">{{ $barang->recipient_name ?? '-' }}</span>
+                            <span class="text-[11px] text-slate-500 block"><i class="fa-solid fa-map-pin text-emerald-500 mr-1"></i> {{ $barang->destination ?? '-' }}</span>
                         </div>
                     </div>
                 </div>

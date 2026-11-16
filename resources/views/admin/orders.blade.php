@@ -236,10 +236,10 @@
                                         <i class="fa-solid fa-barcode text-sm"></i>
                                     </button>
 
-                                    <!-- 2. Halaman Detail Barang & Barcode ID (Slide 12 Materi Dosen) -->
+                                    <!-- 2. Halaman Detail Barang & Barcode ID -->
                                     <a href="{{ route('barang.show', $order->id) }}"
                                        target="_blank"
-                                       title="Detail Barang & Barcode ID (Materi Dosen)"
+                                       title="Detail Barang & Barcode ID"
                                        class="p-2 rounded-xl bg-orange-50 hover:bg-orange-100 text-[#FF6B00] text-xs transition">
                                         <i class="fa-solid fa-eye text-sm"></i>
                                     </a>
@@ -522,7 +522,7 @@
             <a id="barcodeModalDetailLink" href="#" target="_blank"
                class="mt-3 inline-flex items-center gap-1.5 text-[11px] font-bold text-indigo-600 hover:text-indigo-800">
                 <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                <span>Lihat Tampilan Detail Barang (Slide Dosen)</span>
+                <span>Lihat Tampilan Detail Barang</span>
             </a>
         </div>
 

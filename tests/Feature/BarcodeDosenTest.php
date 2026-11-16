@@ -63,6 +63,12 @@ class BarcodeDosenTest extends TestCase
         $detailResponse->assertSee('Barcode Barang');
         $detailResponse->assertSee($order->kode_barang);
         $detailResponse->assertSee('Laptop HP Pavilion');
-        $detailResponse->assertSee('QRIS');
+        $detailResponse->assertSee('Cetak Barcode');
+        $detailResponse->assertDontSee('Scan QRIS');
+
+        // 8. Uji QRIS pembayaran hanya ada di halaman customer
+        $customerNewOrder = $this->actingAs($user)->get(route('customer.new-order'));
+        $customerNewOrder->assertStatus(200);
+        $customerNewOrder->assertSee('Scan QRIS');
     }
 }
