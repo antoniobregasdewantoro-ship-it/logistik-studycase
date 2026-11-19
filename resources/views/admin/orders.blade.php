@@ -584,7 +584,7 @@
                 <p class="text-[11px] text-slate-400 mt-1">Format didukung: .xlsx, .xls, .csv (Maksimal 5MB)</p>
             </div>
 
-            <!-- Teks Petunjuk Kolom Header Sesuai Perintah Dosen -->
+            <!-- Teks Petunjuk Kolom Header Manifest -->
             <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 text-xs text-slate-600 space-y-1.5">
                 <div class="flex items-center gap-2 font-bold text-slate-800">
                     <i class="fa-solid fa-circle-info text-teal-600"></i>

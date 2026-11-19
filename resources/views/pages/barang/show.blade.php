@@ -92,7 +92,7 @@
                 </div>
             </div>
 
-            <!-- Kolom Kanan: Card Barcode 1D & QR Code 2D (Sesuai Slide Dosen 10, 11, 13) -->
+            <!-- Kolom Kanan: Card Barcode 1D & QR Code 2D -->
             <div class="lg:col-span-7 space-y-6">
 
                 <!-- 1. CARD BARCODE 1D (Code 39 - DNS1D) -->

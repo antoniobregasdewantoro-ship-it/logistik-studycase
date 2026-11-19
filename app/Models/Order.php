@@ -209,7 +209,7 @@ class Order extends Model
     }
 
     /**
-     * Accessor: Kode Barang dari kolom ID sesuai arahan & modul dosen (Slide 6 & 7)
+     * Accessor: Kode Barang dari kolom ID
      * Format: INV-00001 (5 digit angka ber-padding nol)
      */
     public function getKodeBarangAttribute(): string
@@ -218,7 +218,7 @@ class Order extends Model
     }
 
     /**
-     * Method: Barcode 1D Code 39 HTML menggunakan Milon Barcode DNS1D (Slide 6, 8, 9, 10, 13)
+     * Method: Barcode 1D Code 39 HTML menggunakan Milon Barcode DNS1D
      * Output berupa string HTML murni (elemen div hitam) tanpa memerlukan file fisik / ext-gd.
      * Digunakan khusus untuk Barcode Identitas Barang / Resi Pengiriman.
      *

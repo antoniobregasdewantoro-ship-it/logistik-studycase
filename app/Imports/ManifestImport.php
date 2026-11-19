@@ -12,7 +12,7 @@ class ManifestImport implements ToModel, WithHeadingRow
     /**
      * Memetakan data dari setiap baris file Excel ke dalam model Order.
      * Mendukung format Excel hasil Export (no_resi, pengirim, rute_tujuan, berat_kg, tarif_rp)
-     * maupun format materi dosen (nomor_resi, nama_pengirim, tujuan, berat, layanan, tarif).
+     * maupun format manifest standar (nomor_resi, nama_pengirim, tujuan, berat, layanan, tarif).
      */
     public function model(array $row): Model|array|null
     {

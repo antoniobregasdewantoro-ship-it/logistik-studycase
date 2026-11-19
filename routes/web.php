@@ -36,7 +36,7 @@ Route::get('/resi/{tracking_number}/cetak', [OrderController::class, 'printResi'
 Route::get('/resi/{tracking_number}/pdf', [OrderController::class, 'downloadResiPdf'])->name('resi.pdf');
 Route::get('/orders/{id}/cetak-resi', [OrderController::class, 'printResi'])->name('orders.print-resi');
 
-// Kode ini untuk menampilkan Halaman Detail Barang & Implementasi Milon Barcode Code 39 (Sesuai Slide 11 & 12 Arahan Dosen)
+// Kode ini untuk menampilkan Halaman Detail Barang & Implementasi Milon Barcode Code 39
 Route::get('/barang/{id}', function ($id) {
     $barang = Barang::findOrFail($id);
     $size = request('size', '3x100');
