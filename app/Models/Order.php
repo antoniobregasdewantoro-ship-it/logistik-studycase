@@ -3,15 +3,69 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
+use Milon\Barcode\Facades\DNS1DFacade as DNS1D;
+use Milon\Barcode\Facades\DNS2DFacade as DNS2D;
 use Picqer\Barcode\BarcodeGeneratorPNG;
 
 /**
+ * @property int $id
+ * @property string $tracking_number
+ * @property int|null $customer_id
+ * @property int|null $courier_id
+ * @property string|null $sender_name
+ * @property string|null $recipient_name
+ * @property string|null $recipient_phone
+ * @property string|null $origin
+ * @property string|null $destination
+ * @property string|null $street_address
+ * @property string|null $rt_rw
+ * @property string|null $village
+ * @property string|null $district
+ * @property string|null $postal_code
+ * @property float $weight
+ * @property string $service_type
+ * @property Carbon|null $pickup_time
+ * @property float $price
+ * @property string|null $payment_method
+ * @property string|null $delay_risk
+ * @property int|null $delay_probability
+ * @property string $status
+ * @property float|null $latitude
+ * @property float|null $longitude
+ * @property string|null $checkpoint
+ * @property string|null $proof_image
+ * @property string|null $notes
+ * @property string|null $package_detail
+ * @property string|null $initial_photo
+ * @property string|null $qr_code_path
+ * @property string|null $pdf_report_path
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read string $kode_barang
+ * @property-read string $barcode_url
+ * @property-read string $qr_code_url
+ * @property-read string $qris_payload
+ * @property-read string $full_address
+ * @property-read string $status_color
+ * @property-read string $risk_color
+ * @property-read string $vehicle_type
+ * @property-read string $vehicle_icon
+ * @property-read string $vehicle_label
+ * @property-read string $scope_label
+ * @property-read string $estimated_arrival
+ * @property-read User|null $customer
+ * @property-read User|null $courier
+ * @property-read Collection<int, Assignment> $assignments
+ * @property-read Collection<int, Review> $reviews
+ * @property-read Review|null $review
+ *
  * @mixin Builder
  * @mixin \Illuminate\Database\Query\Builder
  */
@@ -173,7 +227,7 @@ class Order extends Model
      */
     public function barcodeHtml(int $width = 3, int $height = 100): string
     {
-        return \DNS1D::getBarcodeHTML($this->kode_barang, 'C39', $width, $height);
+        return DNS1D::getBarcodeHTML($this->kode_barang, 'C39', $width, $height);
     }
 
     /**
@@ -183,7 +237,7 @@ class Order extends Model
     {
         $code = strtoupper(preg_replace('/[^A-Z0-9\-]/i', '', (string) ($this->tracking_number ?: $this->kode_barang)));
 
-        return \DNS1D::getBarcodeHTML($code, 'C39', $width, $height);
+        return DNS1D::getBarcodeHTML($code, 'C39', $width, $height);
     }
 
     /**
@@ -203,7 +257,7 @@ class Order extends Model
      */
     public function qrisHtml(int $width = 5, int $height = 5): string
     {
-        return \DNS2D::getBarcodeHTML($this->qris_payload, 'QRCODE', $width, $height);
+        return DNS2D::getBarcodeHTML($this->qris_payload, 'QRCODE', $width, $height);
     }
 
     /**
@@ -213,7 +267,7 @@ class Order extends Model
     {
         $payload = $data ?: url('/lacak?tracking='.$this->tracking_number);
 
-        return \DNS2D::getBarcodeHTML($payload, 'QRCODE', $width, $height);
+        return DNS2D::getBarcodeHTML($payload, 'QRCODE', $width, $height);
     }
 
     /**
@@ -223,10 +277,16 @@ class Order extends Model
     public function getBarcodeUrlAttribute(): string
     {
         $code = strtoupper(preg_replace('/[^A-Z0-9\-]/i', '', (string) ($this->tracking_number ?: $this->kode_barang)));
+        if (empty($code)) {
+            $code = 'MRD-00000';
+        }
 
         try {
-            if (class_exists(\DNS1D::class)) {
-                return 'data:image/png;base64,'.\DNS1D::getBarcodePNG($code, 'C39', 2, 45);
+            if (class_exists(DNS1D::class)) {
+                $png = DNS1D::getBarcodePNG($code, 'C39', 2, 45);
+                if ($png) {
+                    return 'data:image/png;base64,'.$png;
+                }
             }
             if (class_exists(BarcodeGeneratorPNG::class)) {
                 $generator = new BarcodeGeneratorPNG;
@@ -285,8 +345,11 @@ class Order extends Model
      */
     public function getVehicleTypeAttribute(): string
     {
-        $originCity = strtolower(trim(explode(',', $this->origin)[0] ?? $this->origin));
-        $destCity = strtolower(trim(explode(',', $this->destination)[0] ?? $this->destination));
+        $originStr = (string) ($this->origin ?? '');
+        $destStr = (string) ($this->destination ?? '');
+
+        $originCity = strtolower(trim(explode(',', $originStr)[0] ?? $originStr));
+        $destCity = strtolower(trim(explode(',', $destStr)[0] ?? $destStr));
 
         $originClean = trim(str_replace(['cabang hub', 'hub', 'depot', 'pusat'], '', $originCity));
         $destClean = trim(str_replace(['cabang hub', 'hub', 'depot', 'pusat'], '', $destCity));
@@ -328,7 +391,9 @@ class Order extends Model
     public function getEstimatedArrivalAttribute(): string
     {
         if ($this->status === 'Terkirim') {
-            return 'Terkirim pada '.$this->updated_at->isoFormat('D MMM Y, HH:mm').' WIB';
+            $updated = $this->updated_at ? Carbon::parse($this->updated_at) : now();
+
+            return 'Terkirim pada '.$updated->isoFormat('D MMM Y, HH:mm').' WIB';
         }
 
         $daysToAdd = match ($this->service_type) {
@@ -338,7 +403,7 @@ class Order extends Model
             default => 2,
         };
 
-        $baseDate = $this->pickup_time ? Carbon::parse($this->pickup_time) : ($this->created_at ?? now());
+        $baseDate = $this->pickup_time ? Carbon::parse($this->pickup_time) : ($this->created_at ? Carbon::parse($this->created_at) : now());
         $targetDate = $baseDate->copy()->addDays($daysToAdd);
 
         if ($this->service_type === 'Same Day') {
