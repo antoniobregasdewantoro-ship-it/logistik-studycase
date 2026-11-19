@@ -6,6 +6,7 @@ use App\Http\Controllers\CourierController;
 use App\Http\Controllers\ExcelController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\OrderController;
 use App\Models\Barang;
 use App\Models\Branch;
 use App\Models\Order;
@@ -29,6 +30,11 @@ Route::get('/', [LandingController::class, 'index'])->name('home');
 // Kode ini untuk menampilkan halaman pelacakan resi real-time & peta GPS checkpoint pengiriman
 Route::get('/lacak', [LandingController::class, 'trackingPage'])->name('tracking');
 Route::get('/tracking', [LandingController::class, 'trackingPage']); // Kode ini untuk alias rute URL tracking
+
+// Kode ini untuk mencetak label resi pengiriman model Shopee (Thermal 100x150 mm / A6)
+Route::get('/resi/{tracking_number}/cetak', [OrderController::class, 'printResi'])->name('resi.cetak');
+Route::get('/resi/{tracking_number}/pdf', [OrderController::class, 'downloadResiPdf'])->name('resi.pdf');
+Route::get('/orders/{id}/cetak-resi', [OrderController::class, 'printResi'])->name('orders.print-resi');
 
 // Kode ini untuk menampilkan Halaman Detail Barang & Implementasi Milon Barcode Code 39 (Sesuai Slide 11 & 12 Arahan Dosen)
 Route::get('/barang/{id}', function ($id) {

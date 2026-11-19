@@ -71,7 +71,7 @@
                             <h2 class="text-2xl font-black font-mono text-[#0A1128] dark:text-white tracking-tight">{{ $trackedOrder->tracking_number }}</h2>
                         </div>
                     </div>
-                    <div>
+                    <div class="flex flex-wrap items-center gap-2">
                         @if($trackedOrder->status === 'Terkirim')
                             <span class="px-4 py-2 rounded-full text-xs font-black bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 flex items-center gap-2">
                                 <i class="fa-solid fa-circle-check text-emerald-600"></i> Paket Berhasil Terkirim
@@ -85,6 +85,21 @@
                                 <i class="fa-solid fa-clock text-amber-600"></i> Menunggu Verifikasi Manifest
                             </span>
                         @endif
+
+                        <!-- Tombol Cetak Resi -->
+                        <a href="{{ route('resi.cetak', $trackedOrder->tracking_number) }}" target="_blank"
+                           class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-black bg-[#0A1128] dark:bg-[#FF6B00] text-white hover:bg-[#FF6B00] dark:hover:bg-[#E55F00] shadow-md transition"
+                           title="Cetak Resi">
+                            <i class="fa-solid fa-print"></i>
+                            <span>Cetak Resi</span>
+                        </a>
+
+                        <button type="button" onclick="openResiPreviewModal()"
+                                class="inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold bg-white dark:bg-white/10 hover:bg-slate-100 dark:hover:bg-white/20 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-white/10 shadow-sm transition"
+                                title="Lihat Pratinjau Resi">
+                            <i class="fa-solid fa-eye text-[#FF6B00]"></i>
+                            <span>Pratinjau</span>
+                        </button>
                     </div>
                 </div>
 
@@ -220,13 +235,21 @@
                         <div>
                             <span class="text-slate-400 font-bold block mb-1">LABEL DIGITAL</span>
                             <p class="font-bold text-[#0A1128] dark:text-white">Barcode Resi</p>
-                            @if($trackedOrder->pdf_report_path)
-                                <a href="{{ $trackedOrder->pdf_report_url }}" class="text-[10px] text-rose-500 font-bold hover:underline block mt-1" download>
-                                    <i class="fa-solid fa-file-pdf"></i> Unduh PDF
+                            <div class="flex flex-wrap items-center gap-2 mt-1">
+                                <a href="{{ route('resi.cetak', $trackedOrder->tracking_number) }}" target="_blank" class="text-[11px] text-[#FF6B00] font-black hover:underline inline-flex items-center gap-1">
+                                    <i class="fa-solid fa-print"></i> Cetak Resi
                                 </a>
-                            @endif
+                                @if($trackedOrder->pdf_report_path)
+                                    <span class="text-slate-300">•</span>
+                                    <a href="{{ $trackedOrder->pdf_report_url }}" class="text-[10px] text-rose-500 font-bold hover:underline" download>
+                                        <i class="fa-solid fa-file-pdf"></i> PDF Laporan
+                                    </a>
+                                @endif
+                            </div>
                         </div>
-                        <img src="{{ $trackedOrder->barcode_url }}" alt="Barcode Resi" class="w-24 h-12 object-contain rounded-xl border border-slate-200 dark:border-white/20 p-1 bg-white">
+                        <a href="{{ route('resi.cetak', $trackedOrder->tracking_number) }}" target="_blank" title="Klik untuk Cetak Resi" class="block">
+                            <img src="{{ $trackedOrder->barcode_url }}" alt="Barcode Resi" class="w-24 h-12 object-contain rounded-xl border border-slate-200 dark:border-white/20 p-1 bg-white hover:border-[#FF6B00] transition">
+                        </a>
                     </div>
                 </div>
 
@@ -258,11 +281,73 @@
         @endif
     @endif
 
+    <!-- MODAL PRATINJAU & CETAK RESI SHOPEE -->
+    @if(isset($trackedOrder))
+    <div id="modalResiPreview" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl border border-slate-100 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <!-- Modal Header -->
+            <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-[#0A1128] text-[#FF6B00] flex items-center justify-center text-sm font-bold">
+                        <i class="fa-solid fa-receipt"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-extrabold text-[#0A1128]">Label Resi Pengiriman</h3>
+                        <p class="text-[10px] text-slate-400 font-mono">{{ $trackedOrder->tracking_number }}</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeResiPreviewModal()" class="w-8 h-8 rounded-full bg-white hover:bg-slate-200 text-slate-500 flex items-center justify-center font-bold text-base transition">
+                    &times;
+                </button>
+            </div>
+
+            <!-- Modal Body: Thermal Shopee Resi Partial -->
+            <div class="p-4 overflow-y-auto flex-1 flex justify-center bg-slate-100/60" id="modalPrintableArea">
+                <div class="shadow-md bg-white">
+                    @include('partials.resi-thermal', ['order' => $trackedOrder])
+                </div>
+            </div>
+
+            <!-- Modal Footer Actions -->
+            <div class="p-4 border-t border-slate-100 bg-white flex flex-wrap items-center justify-between gap-2">
+                <div class="text-[11px] text-slate-400">
+                    <i class="fa-solid fa-print text-[#FF6B00] mr-1"></i> Format Thermal 100x150 mm
+                </div>
+                <div class="flex items-center gap-2">
+                    <a href="{{ route('resi.pdf', $trackedOrder->tracking_number) }}" target="_blank"
+                       class="px-3.5 py-2 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-bold transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-file-pdf text-rose-500"></i>
+                        <span>PDF</span>
+                    </a>
+                    <a href="{{ route('resi.cetak', ['tracking_number' => $trackedOrder->tracking_number, 'autoprint' => 1]) }}" target="_blank"
+                       class="px-4 py-2 rounded-xl bg-[#0A1128] hover:bg-[#FF6B00] text-white text-xs font-extrabold shadow-md transition flex items-center gap-2">
+                        <i class="fa-solid fa-print text-[#FF6B00]"></i>
+                        <span>Cetak Sekarang</span>
+                    </a>
+                    <button type="button" onclick="closeResiPreviewModal()"
+                            class="px-3 py-2 rounded-xl text-slate-400 hover:text-slate-600 text-xs font-bold">
+                        Tutup
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
 </div>
 @endsection
 
 @push('scripts')
 <script>
+    function openResiPreviewModal() {
+        const modal = document.getElementById('modalResiPreview');
+        if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeResiPreviewModal() {
+        const modal = document.getElementById('modalResiPreview');
+        if (modal) modal.classList.add('hidden');
+    }
     @if(isset($trackedOrder) && $trackedOrder->latitude && $trackedOrder->longitude)
     document.addEventListener('DOMContentLoaded', function() {
         const lat = {{ $trackedOrder->latitude }};

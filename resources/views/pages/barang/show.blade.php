@@ -176,9 +176,18 @@
                                 <p class="text-[10px] text-slate-400">Informasi nomor resi dan distribusi paket</p>
                             </div>
                         </div>
-                        <span class="font-mono text-xs font-black text-[#0A1128] dark:text-white bg-slate-100 dark:bg-white/10 px-2.5 py-1 rounded-lg">
-                            {{ $barang->tracking_number ?? 'MRD-00000' }}
-                        </span>
+                        <div class="flex items-center gap-2">
+                            <span class="font-mono text-xs font-black text-[#0A1128] dark:text-white bg-slate-100 dark:bg-white/10 px-2.5 py-1 rounded-lg">
+                                {{ $barang->tracking_number ?? 'MRD-00000' }}
+                            </span>
+                            @if(!empty($barang->tracking_number))
+                                <a href="{{ route('resi.cetak', $barang->tracking_number) }}" target="_blank"
+                                   class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-extrabold bg-[#0A1128] text-white hover:bg-[#FF6B00] shadow-xs transition">
+                                    <i class="fa-solid fa-print text-[#FF6B00]"></i>
+                                    <span>Cetak Resi</span>
+                                </a>
+                            @endif
+                        </div>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs pt-1">

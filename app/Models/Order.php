@@ -225,7 +225,7 @@ class Order extends Model
      * @param  int  $width  Ketebalan tiap garis vertikal (default: 3)
      * @param  int  $height  Panjang garis vertikal dari atas ke bawah (default: 100)
      */
-    public function barcodeHtml(int $width = 3, int $height = 100): string
+    public function barcodeHtml(int $width = 10, int $height = 100): string
     {
         return DNS1D::getBarcodeHTML($this->kode_barang, 'C39', $width, $height);
     }
@@ -310,6 +310,25 @@ class Order extends Model
         $data = urlencode(url('/lacak?tracking='.$this->tracking_number));
 
         return "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={$data}";
+    }
+
+    /**
+     * Get QR Code 2D Base64 Data PNG untuk Cetak Label Thermal Resi
+     */
+    public function getQrCodeBase64Attribute(): string
+    {
+        try {
+            if (class_exists(DNS2D::class)) {
+                $payload = url('/lacak?tracking='.$this->tracking_number);
+                $png = DNS2D::getBarcodePNG($payload, 'QRCODE', 4, 4);
+                if ($png) {
+                    return 'data:image/png;base64,'.$png;
+                }
+            }
+        } catch (\Throwable) {
+        }
+
+        return $this->qr_code_url;
     }
 
     /**

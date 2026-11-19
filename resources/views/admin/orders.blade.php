@@ -103,7 +103,7 @@
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-3">
                                     <button type="button" onclick="showBarcodeModal('{{ $order->tracking_number }}', '{{ $order->barcode_url }}', '{{ addslashes($order->sender_name) }}', '{{ addslashes($order->destination) }}', '{{ $order->id }}', '{{ $order->kode_barang }}')"
-                                            class="w-16 h-8 rounded-lg bg-white border border-slate-200 p-0.5 flex items-center justify-center hover:border-[#FF6B00] transition shadow-xs shrink-0" title="Lihat Barcode Resi">
+                                            class="w-9 h-8 rounded-lg bg-white border border-slate-200 p-0.5 flex items-center justify-center hover:border-[#FF6B00] transition shadow-xs shrink-0" title="Lihat Barcode Resi">
                                         <img src="{{ $order->barcode_url }}" alt="Barcode" class="w-full h-full object-contain">
                                     </button>
                                     <div>
@@ -226,25 +226,33 @@
                                 </div>
                             </td>
 
-                            <!-- Aksi (Hanya Lihat Barcode dan Hapus Sesuai Permintaan) -->
+                            <!-- Aksi (Cetak Resi, Lihat Barcode, Detail Barang, dan Hapus) -->
                             <td class="px-6 py-4 text-center">
-                                <div class="flex items-center justify-center gap-2">
-                                    <!-- 1. Print / Lihat Label Barcode Resi (1D Code 39) -->
+                                <div class="flex items-center justify-center gap-1.5">
+                                    <!-- 1. Cetak Resi Pengiriman Fisik -->
+                                    <a href="{{ route('resi.cetak', $order->tracking_number) }}"
+                                       target="_blank"
+                                       title="Cetak Resi"
+                                       class="p-2 rounded-xl bg-orange-50 hover:bg-[#FF6B00] text-[#FF6B00] hover:text-white text-xs transition shadow-xs">
+                                        <i class="fa-solid fa-print text-sm"></i>
+                                    </a>
+
+                                    <!-- 2. Print / Lihat Label Barcode Resi (1D Code 39) -->
                                     <button type="button" onclick="showBarcodeModal('{{ $order->tracking_number }}', '{{ $order->barcode_url }}', '{{ addslashes($order->sender_name) }}', '{{ addslashes($order->destination) }}', '{{ $order->id }}', '{{ $order->kode_barang }}')"
                                             title="Lihat Barcode Resi"
                                             class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs transition">
                                         <i class="fa-solid fa-barcode text-sm"></i>
                                     </button>
 
-                                    <!-- 2. Halaman Detail Barang & Barcode ID -->
+                                    <!-- 3. Halaman Detail Barang & Barcode ID -->
                                     <a href="{{ route('barang.show', $order->id) }}"
                                        target="_blank"
                                        title="Detail Barang & Barcode ID"
-                                       class="p-2 rounded-xl bg-orange-50 hover:bg-orange-100 text-[#FF6B00] text-xs transition">
+                                       class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs transition">
                                         <i class="fa-solid fa-eye text-sm"></i>
                                     </a>
 
-                                    <!-- 3. Hapus Pesanan (Buka Modal Konfirmasi Modern) -->
+                                    <!-- 4. Hapus Pesanan (Buka Modal Konfirmasi Modern) -->
                                     <button type="button" onclick="openDeleteOrderModal('{{ $order->id }}', '{{ $order->tracking_number }}')"
                                             title="Hapus Pesanan"
                                             class="p-2 rounded-xl bg-slate-100 hover:bg-rose-100 text-slate-400 hover:text-rose-600 text-xs transition">
@@ -519,21 +527,24 @@
                 <p><span class="text-slate-400 font-semibold">Tujuan:</span> <span id="barcodeModalDestination" class="font-bold text-[#FF6B00]">Surabaya</span></p>
             </div>
 
-            <a id="barcodeModalDetailLink" href="#" target="_blank"
-               class="mt-3 inline-flex items-center gap-1.5 text-[11px] font-bold text-indigo-600 hover:text-indigo-800">
-                <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                <span>Lihat Tampilan Detail Barang</span>
-            </a>
+            <div class="mt-3 flex items-center justify-center">
+                <a id="barcodeModalDetailLink" href="#" target="_blank"
+                   class="inline-flex items-center gap-1.5 text-[11px] font-bold text-indigo-600 hover:text-indigo-800">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    <span>Lihat Halaman Detail Barang</span>
+                </a>
+            </div>
         </div>
 
-        <div class="mt-5 flex items-center justify-center gap-3">
-            <button type="button" onclick="printBarcodeLabel()"
-                    class="px-5 py-2.5 rounded-xl bg-[#0A1128] text-white font-bold text-xs hover:bg-slate-800 transition shadow-md flex items-center gap-2">
+        <div class="mt-5 flex items-center justify-center gap-2">
+            <!-- Tombol Cetak Resi (Utama) -->
+            <a id="barcodeModalCetakShopeeLink" href="#" target="_blank"
+               class="px-5 py-2.5 rounded-xl bg-[#0A1128] hover:bg-[#FF6B00] text-white text-xs font-extrabold shadow-md transition flex items-center gap-2">
                 <i class="fa-solid fa-print text-[#FF6B00]"></i>
-                <span>Cetak Label Thermal</span>
-            </button>
+                <span>Cetak Resi</span>
+            </a>
             <button type="button" onclick="closeBarcodeModal()"
-                    class="px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50">
+                    class="px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 transition">
                 Tutup
             </button>
         </div>
@@ -657,6 +668,9 @@
             } else {
                 document.getElementById('barcodeModalDetailLink').classList.add('hidden');
             }
+        }
+        if (document.getElementById('barcodeModalCetakShopeeLink')) {
+            document.getElementById('barcodeModalCetakShopeeLink').href = '/resi/' + resi + '/cetak';
         }
         document.getElementById('modalBarcodeLabel').classList.remove('hidden');
     }

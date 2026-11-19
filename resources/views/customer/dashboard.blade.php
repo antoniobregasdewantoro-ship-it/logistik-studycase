@@ -191,17 +191,26 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4 text-center">
-                                <div class="flex items-center justify-center gap-2">
+                                <div class="flex items-center justify-center gap-1.5">
                                     <a href="{{ route('tracking', ['tracking' => $order->tracking_number]) }}"
-                                       class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-white/10 hover:bg-[#FF6B00] hover:text-white text-slate-700 dark:text-slate-200 font-bold text-[11px] transition inline-flex items-center gap-1.5 shadow-sm">
+                                       class="px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-white/10 hover:bg-[#FF6B00] hover:text-white text-slate-700 dark:text-slate-200 font-bold text-[11px] transition inline-flex items-center gap-1 shadow-sm">
                                         <i class="fa-solid fa-map-location-dot text-[#FF6B00]"></i>
-                                        <span>Lacak Peta</span>
+                                        <span>Lacak</span>
+                                    </a>
+
+                                    <!-- Tombol Cetak Resi -->
+                                    <a href="{{ route('resi.cetak', $order->tracking_number) }}"
+                                       target="_blank"
+                                       class="px-2.5 py-1.5 rounded-xl bg-orange-50 dark:bg-orange-950/40 hover:bg-[#FF6B00] hover:text-white text-[#FF6B00] font-bold text-[11px] transition inline-flex items-center gap-1 shadow-xs border border-orange-200 dark:border-orange-500/20"
+                                       title="Cetak Resi">
+                                        <i class="fa-solid fa-print"></i>
+                                        <span>Cetak Resi</span>
                                     </a>
 
                                     @if($order->proof_image)
                                         <button type="button"
                                                 onclick="openPhotoLightbox('{{ $order->proof_image_url }}', '{{ $order->tracking_number }}', '{{ addslashes($order->notes ?? 'Paket telah terkirim.') }}')"
-                                                class="px-2.5 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold text-[11px] transition flex items-center gap-1"
+                                                class="px-2 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold text-[11px] transition flex items-center gap-1"
                                                 title="Lihat Foto Bukti Serah Terima">
                                             <i class="fa-solid fa-camera"></i>
                                             <span>Foto</span>

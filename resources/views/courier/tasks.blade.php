@@ -208,6 +208,13 @@
                             </div>
 
                             <div class="flex items-center gap-2">
+                                <a href="{{ route('resi.cetak', $task->tracking_number) }}" target="_blank" onclick="event.stopPropagation()"
+                                   class="px-2 py-1 rounded-xl bg-orange-50 dark:bg-orange-950/40 hover:bg-[#FF6B00] text-[#FF6B00] hover:text-white text-[11px] font-bold flex items-center gap-1 transition border border-orange-200 dark:border-orange-500/20"
+                                   title="Cetak Resi">
+                                    <i class="fa-solid fa-print"></i>
+                                    <span>Resi</span>
+                                </a>
+
                                 <span class="text-[11px] text-slate-400 font-mono">
                                     {{ $isDelivered ? '08:30 - 09:30' : '09:45 - 11:00' }}
                                 </span>
