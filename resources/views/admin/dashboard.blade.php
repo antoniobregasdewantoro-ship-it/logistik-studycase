@@ -64,7 +64,7 @@
                     </div>
                 </div>
 
-                <!-- Canvas Chart Tren (Slide 7 & 8) -->
+                <!-- Canvas Chart Tren -->
                 <div class="relative w-full h-[270px]">
                     <canvas id="chartTrenTransaksi"></canvas>
                 </div>
@@ -401,6 +401,10 @@
 @endsection
 
 @push('scripts')
+<!-- Payload Data JSON dari Backend (Slide 9 - Disimpan dalam script JSON agar bebas error linter di VS Code) -->
+<script id="trenDataPayload" type="application/json">@json($trenPengiriman ?? ['labels' => [], 'data' => [], 'terkirim' => []])</script>
+<script id="statusDataPayload" type="application/json">@json($statusPesanan ?? ['labels' => [], 'data' => [], 'colors' => []])</script>
+
 <script>
     // Search table filter
     function searchActiveDeliveries(keyword) {
@@ -470,17 +474,19 @@
         });
 
         // ----------------------------------------------------
-        // VISUALISASI CHART.JS (Slide 6, 7, 8, 9, 10, 11)
+        // VISUALISASI CHART.JS
         // ----------------------------------------------------
         const isDark = document.documentElement.classList.contains('dark');
         const textColor = isDark ? '#94A3B8' : '#64748B';
         const gridColor = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)';
 
-        // 1. Injeksi Data Backend via json directive (Slide 9)
-        const trenData = @json($trenPengiriman ?? ['labels' => [], 'data' => [], 'terkirim' => []]);
-        const statusData = @json($statusPesanan ?? ['labels' => [], 'data' => [], 'colors' => []]);
+        // 1. Ambil Data Backend via @json payload (Slide 9 - Bersih & Standar Modern)
+        const trenEl = document.getElementById('trenDataPayload');
+        const statusEl = document.getElementById('statusDataPayload');
+        const trenData = trenEl ? JSON.parse(trenEl.textContent || '{}') : { labels: [], data: [], terkirim: [] };
+        const statusData = statusEl ? JSON.parse(statusEl.textContent || '{}') : { labels: [], data: [], colors: [] };
 
-        // 2. Render Line Chart: Tren Pengiriman (Slide 7 & 10)
+        // 2. Render Line Chart: Tren Pengiriman 
         const canvasTren = document.getElementById('chartTrenTransaksi');
         if (canvasTren) {
             const ctxTren = canvasTren.getContext('2d');
@@ -548,7 +554,7 @@
                         },
                         tooltip: {
                             backgroundColor: '#0A1128',
-                            titleFont: { family: "'Plus Jakarta Sans', sans-serif", weight: 'bold', size: 12 },
+                            titleFont: { family: "'Plus Jakarta Sans', Arial", weight: 'bold', size: 12 },
                             bodyFont: { family: "'Plus Jakarta Sans', sans-serif", size: 11 },
                             padding: 10,
                             cornerRadius: 10,
@@ -592,7 +598,7 @@
             });
         }
 
-        // 3. Render Doughnut Chart: Komposisi Status Pengiriman dengan Angka Persentase (Slide 7 & 10)
+        // 3. Render Doughnut Chart: Komposisi Status Pengiriman dengan Angka Persentase 
         const canvasStatus = document.getElementById('chartStatusTransaksi');
         if (canvasStatus) {
             const ctxStatus = canvasStatus.getContext('2d');
