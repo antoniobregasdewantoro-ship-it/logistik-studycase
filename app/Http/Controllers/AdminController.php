@@ -11,6 +11,7 @@ use App\Models\LoginHistory;
 use App\Models\Order;
 use App\Models\Review;
 use App\Models\User;
+use App\Services\StatistikService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -86,9 +87,9 @@ class AdminController extends Controller
     }
 
     /**
-     * Kode ini untuk menampilkan dashboard admin: metrik ringkasan armada (4 bento card), daftar pesanan aktif, dan filter risiko.
+     * Kode ini untuk menampilkan dashboard admin: metrik ringkasan armada (4 bento card), visualisasi grafik statistik, daftar pesanan aktif, dan filter risiko.
      */
-    public function dashboard(Request $request): View
+    public function dashboard(Request $request, StatistikService $statistikService): View
     {
         $ordersQuery = Order::with(['customer', 'courier'])->latest();
 
@@ -108,6 +109,15 @@ class AdminController extends Controller
         $onTimeCount = Order::where('delay_risk', '!=', 'High')->count();
         $onTimeRate = $totalOrders > 0 ? round(($onTimeCount / $totalOrders) * 100, 1) : 94.2;
 
+        // Visualisasi Grafik & Chart Statistik (Slide 4, 11, 12)
+        $jumlahBulan = (int) $request->input('bulan', 6);
+        $jumlahBulan = in_array($jumlahBulan, [3, 6, 12], true) ? $jumlahBulan : 6;
+
+        $trenPengiriman = $statistikService->transaksiPerBulan($jumlahBulan);
+        $statusPesanan = $statistikService->statusTransaksi();
+        $layananKargo = $statistikService->jumlahBarangPerKategori(4);
+        $topRute = $statistikService->topBarangDipinjam(5);
+
         return view('admin.dashboard', compact(
             'orders',
             'branches',
@@ -115,7 +125,12 @@ class AdminController extends Controller
             'totalOrders',
             'activeCouriers',
             'delayAlerts',
-            'onTimeRate'
+            'onTimeRate',
+            'trenPengiriman',
+            'statusPesanan',
+            'layananKargo',
+            'topRute',
+            'jumlahBulan'
         ));
     }
 

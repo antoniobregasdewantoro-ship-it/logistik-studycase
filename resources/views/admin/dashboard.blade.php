@@ -25,6 +25,128 @@
         </div>
     </div>
 
+    <!-- SECTION VISUALISASI GRAFIK & ANALISIS STATISTIK (Diletakkan Di Atas 4 Bento Card) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- GRAFIK 1: TREN PENGIRIMAN & VOLUME MANIFEST (Line Chart dengan Gradient & Filter Periode) -->
+        <div class="lg:col-span-8 bg-white dark:bg-[#0D1527] rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+            <div>
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-[#FF6B00] animate-pulse"></span>
+                            <span class="text-[11px] font-extrabold uppercase tracking-widest text-[#FF6B00]">
+                                ANALISIS TREN OPERASIONAL
+                            </span>
+                        </div>
+                        <h2 class="text-xl font-black text-[#0A1128] dark:text-white tracking-tight mt-1">
+                            Tren Pengiriman & Volume Manifest
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-0.5">
+                            Visualisasi data pergerakan paket dan tingkat keberhasilan pengiriman armada
+                        </p>
+                    </div>
+
+                    <!-- Tombol Filter Periode (Slide 12: 3 Bulan / 6 Bulan / 12 Bulan) -->
+                    <div class="inline-flex items-center bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl self-start sm:self-auto border border-slate-200/50 dark:border-slate-700/50">
+                        <a href="{{ route('admin.dashboard', ['bulan' => 3]) }}"
+                           class="px-3 py-1.5 rounded-lg text-xs font-bold transition {{ ($jumlahBulan ?? 6) == 3 ? 'bg-[#FF6B00] text-white shadow-sm' : 'text-slate-600 dark:text-slate-300 hover:text-[#0A1128] dark:hover:text-white' }}">
+                            3 Bulan
+                        </a>
+                        <a href="{{ route('admin.dashboard', ['bulan' => 6]) }}"
+                           class="px-3 py-1.5 rounded-lg text-xs font-bold transition {{ ($jumlahBulan ?? 6) == 6 ? 'bg-[#FF6B00] text-white shadow-sm' : 'text-slate-600 dark:text-slate-300 hover:text-[#0A1128] dark:hover:text-white' }}">
+                            6 Bulan
+                        </a>
+                        <a href="{{ route('admin.dashboard', ['bulan' => 12]) }}"
+                           class="px-3 py-1.5 rounded-lg text-xs font-bold transition {{ ($jumlahBulan ?? 6) == 12 ? 'bg-[#FF6B00] text-white shadow-sm' : 'text-slate-600 dark:text-slate-300 hover:text-[#0A1128] dark:hover:text-white' }}">
+                            12 Bulan
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Canvas Chart Tren (Slide 7 & 8) -->
+                <div class="relative w-full h-[270px]">
+                    <canvas id="chartTrenTransaksi"></canvas>
+                </div>
+            </div>
+
+            <!-- Ringkasan Mini Performa Periode -->
+            <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800/80 grid grid-cols-3 gap-2 text-center">
+                <div class="px-2">
+                    <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Rata-rata / Bulan</span>
+                    <span class="text-sm font-extrabold text-[#0A1128] dark:text-white">
+                        {{ count($trenPengiriman['data'] ?? []) > 0 ? round(array_sum($trenPengiriman['data']) / count($trenPengiriman['data'])) : 0 }} Paket
+                    </span>
+                </div>
+                <div class="px-2 border-x border-slate-100 dark:border-slate-800/80">
+                    <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Tingkat Berhasil</span>
+                    <span class="text-sm font-extrabold text-emerald-500">
+                        {{ $onTimeRate }}% Sukses
+                    </span>
+                </div>
+                <div class="px-2">
+                    <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Volume Periode</span>
+                    <span class="text-sm font-extrabold text-[#FF6B00]">
+                        {{ number_format(array_sum($trenPengiriman['data'] ?? [])) }} Paket
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- GRAFIK 2: KOMPOSISI STATUS PENGIRIMAN (Doughnut Chart - Slide 4, 5, 7) -->
+        <div class="lg:col-span-4 bg-white dark:bg-[#0D1527] rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between mb-2">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                            <span class="text-[11px] font-extrabold uppercase tracking-widest text-emerald-500">
+                                STATUS REAL-TIME
+                            </span>
+                        </div>
+                        <h2 class="text-xl font-black text-[#0A1128] dark:text-white tracking-tight mt-1">
+                            Status Pengiriman
+                        </h2>
+                    </div>
+                    <span class="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                        Live Data
+                    </span>
+                </div>
+                <p class="text-xs text-slate-400 mb-4">
+                    Komposisi manifest pesanan terkirim, transit kurir, dan verifikasi
+                </p>
+
+                <!-- Canvas Doughnut Chart -->
+                <div class="relative w-full h-[200px] flex items-center justify-center">
+                    <canvas id="chartStatusTransaksi"></canvas>
+                </div>
+            </div>
+
+            <!-- Custom Legend & Detail Angka -->
+            <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800/80 space-y-2">
+                @php
+                    $statusLabels = $statusPesanan['labels'] ?? ['Terkirim', 'Dalam Perjalanan', 'Verifikasi'];
+                    $statusCounts = $statusPesanan['data'] ?? [0, 0, 0];
+                    $statusColorPills = ['bg-emerald-500', 'bg-blue-500', 'bg-[#FF6B00]'];
+                    $totalStatus = array_sum($statusCounts) ?: 1;
+                @endphp
+                @foreach($statusLabels as $idx => $label)
+                    <div class="flex items-center justify-between text-xs">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full {{ $statusColorPills[$idx] ?? 'bg-slate-400' }}"></span>
+                            <span class="font-bold text-slate-700 dark:text-slate-300">{{ $label }}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-extrabold text-[#0A1128] dark:text-white">{{ $statusCounts[$idx] ?? 0 }}</span>
+                            <span class="text-[10px] font-medium text-slate-400">({{ round((($statusCounts[$idx] ?? 0) / $totalStatus) * 100) }}%)</span>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+
+    </div>
+
     <!-- 4 BENTO GRID CARDS (Persis Gambar 3) -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
@@ -338,6 +460,147 @@
                 opacity: 0.85
             }).addTo(routeMap);
         });
+
+        // ----------------------------------------------------
+        // VISUALISASI CHART.JS (Slide 6, 7, 8, 9, 10, 11)
+        // ----------------------------------------------------
+        const isDark = document.documentElement.classList.contains('dark');
+        const textColor = isDark ? '#94A3B8' : '#64748B';
+        const gridColor = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)';
+
+        // 1. Injeksi Data Backend via json directive (Slide 9)
+        const trenData = @json($trenPengiriman ?? ['labels' => [], 'data' => [], 'terkirim' => []]);
+        const statusData = @json($statusPesanan ?? ['labels' => [], 'data' => [], 'colors' => []]);
+
+        // 2. Render Line Chart: Tren Pengiriman (Slide 7 & 10)
+        const canvasTren = document.getElementById('chartTrenTransaksi');
+        if (canvasTren) {
+            const ctxTren = canvasTren.getContext('2d');
+            const gradientOrange = ctxTren.createLinearGradient(0, 0, 0, 260);
+            gradientOrange.addColorStop(0, 'rgba(255, 107, 0, 0.35)');
+            gradientOrange.addColorStop(1, 'rgba(255, 107, 0, 0.00)');
+
+            window.meridianTrenChart = new Chart(ctxTren, {
+                type: 'line',
+                data: {
+                    labels: trenData.labels,
+                    datasets: [
+                        {
+                            label: 'Total Manifest',
+                            data: trenData.data,
+                            borderColor: '#FF6B00',
+                            backgroundColor: gradientOrange,
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: '#FF6B00',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        },
+                        {
+                            label: 'Paket Terkirim',
+                            data: trenData.terkirim,
+                            borderColor: '#10B981',
+                            backgroundColor: 'transparent',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            tension: 0.4,
+                            pointBackgroundColor: '#10B981',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointRadius: 3,
+                            pointHoverRadius: 5
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            align: 'end',
+                            labels: {
+                                boxWidth: 10,
+                                usePointStyle: true,
+                                pointStyle: 'circle',
+                                font: {
+                                    family: "'Plus Jakarta Sans', sans-serif",
+                                    weight: 'bold',
+                                    size: 11
+                                },
+                                color: textColor
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#0A1128',
+                            titleFont: { family: "'Plus Jakarta Sans', sans-serif", weight: 'bold', size: 12 },
+                            bodyFont: { family: "'Plus Jakarta Sans', sans-serif", size: 11 },
+                            padding: 10,
+                            cornerRadius: 10
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: {
+                                color: textColor,
+                                font: { family: "'Plus Jakarta Sans', sans-serif", size: 11 }
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: gridColor },
+                            ticks: {
+                                precision: 0,
+                                color: textColor,
+                                font: { family: "'Plus Jakarta Sans', sans-serif", size: 11 }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 3. Render Doughnut Chart: Komposisi Status Pengiriman (Slide 7 & 10)
+        const canvasStatus = document.getElementById('chartStatusTransaksi');
+        if (canvasStatus) {
+            const ctxStatus = canvasStatus.getContext('2d');
+            window.meridianStatusChart = new Chart(ctxStatus, {
+                type: 'doughnut',
+                data: {
+                    labels: statusData.labels,
+                    datasets: [{
+                        data: statusData.data,
+                        backgroundColor: statusData.colors || ['#10B981', '#3B82F6', '#FF6B00'],
+                        borderWidth: 2,
+                        borderColor: isDark ? '#0D1527' : '#FFFFFF',
+                        hoverOffset: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '72%',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#0A1128',
+                            titleFont: { family: "'Plus Jakarta Sans', sans-serif", weight: 'bold' },
+                            bodyFont: { family: "'Plus Jakarta Sans', sans-serif" },
+                            padding: 10,
+                            cornerRadius: 10
+                        }
+                    }
+                }
+            });
+        }
     });
 </script>
 @endpush

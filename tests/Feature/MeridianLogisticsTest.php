@@ -108,6 +108,18 @@ class MeridianLogisticsTest extends TestCase
         $response->assertSee('KURIR AKTIF');
         $response->assertSee('PERINGATAN KETERLAMBATAN');
         $response->assertSee('TINGKAT TEPAT WAKTU');
+        // Assert visual chart elements (Slide 6, 7, 8, 12)
+        $response->assertSee('chartTrenTransaksi');
+        $response->assertSee('chartStatusTransaksi');
+        $response->assertSee('Tren Pengiriman');
+        $response->assertSee('Status Pengiriman');
+        $response->assertSee('3 Bulan');
+        $response->assertSee('6 Bulan');
+        $response->assertSee('12 Bulan');
+
+        // Test filter periode bulan (Slide 12)
+        $response12 = $this->actingAs($admin)->get('/admin/dashboard?bulan=12');
+        $response12->assertStatus(200);
     }
 
     /**
