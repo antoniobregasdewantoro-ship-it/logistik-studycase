@@ -359,7 +359,11 @@
                                     <!-- Jika sudah ada bukti foto, tombol preview lightbox -->
                                     <!-- Lihat Foto Bukti (Hanya jika sudah diupload oleh Kurir) -->
                                     @if($order->proof_image)
-                                        <button type="button" onclick="openPhotoLightbox('{{ asset('storage/' . $order->proof_image) }}', '{{ $order->tracking_number }}', '{{ addslashes($order->notes ?? 'Paket telah terkirim.') }}')"
+                                        <button type="button"
+                                                data-url="{{ asset('storage/' . $order->proof_image) }}"
+                                                data-title="{{ $order->tracking_number }}"
+                                                data-notes="{{ $order->notes ?? 'Paket telah terkirim.' }}"
+                                                onclick="openPhotoLightbox(this.dataset.url, this.dataset.title, this.dataset.notes)"
                                                 class="px-2.5 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 font-bold text-[11px] border border-emerald-200 dark:border-emerald-800 flex items-center gap-1.5 transition" title="Lihat Bukti Foto Kurir">
                                             <i class="fa-solid fa-camera"></i>
                                             <span>Foto Bukti</span>

@@ -114,7 +114,13 @@
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
                                 <button type="button"
-                                    onclick="showBarcodeModal('{{ $order->tracking_number }}', '{{ $order->barcode_url }}', '{{ addslashes($order->sender_name) }}', '{{ addslashes($order->destination) }}', '{{ $order->id }}', '{{ $order->kode_barang }}')"
+                                    data-resi="{{ $order->tracking_number }}"
+                                    data-barcode="{{ $order->barcode_url }}"
+                                    data-sender="{{ $order->sender_name }}"
+                                    data-destination="{{ $order->destination }}"
+                                    data-id="{{ $order->id }}"
+                                    data-kode="{{ $order->kode_barang }}"
+                                    onclick="showBarcodeModal(this.dataset.resi, this.dataset.barcode, this.dataset.sender, this.dataset.destination, this.dataset.id, this.dataset.kode)"
                                     class="w-9 h-8 rounded-lg bg-white border border-slate-200 p-0.5 flex items-center justify-center hover:border-[#FF6B00] transition shadow-xs shrink-0"
                                     title="Lihat Barcode Resi">
                                     <img src="{{ $order->barcode_url }}" alt="Barcode"
@@ -178,7 +184,10 @@
                                 @endif
                                 @if($order->initial_photo)
                                 <button type="button"
-                                    onclick="openPhotoLightbox('{{ $order->initial_photo_url }}', '{{ $order->tracking_number }} (Foto Sebelum Dikirim)', 'Detail: {{ addslashes($order->package_detail ?? 'Kondisi awal di cabang') }}')"
+                                    data-url="{{ $order->initial_photo_url }}"
+                                    data-title="{{ $order->tracking_number }} (Foto Sebelum Dikirim)"
+                                    data-notes="Detail: {{ $order->package_detail ?? 'Kondisi awal di cabang' }}"
+                                    onclick="openPhotoLightbox(this.dataset.url, this.dataset.title, this.dataset.notes)"
                                     class="inline-flex items-center gap-1 text-[10px] text-blue-600 font-bold hover:underline mt-1 block"
                                     title="Lihat foto paket sebelum dikirim">
                                     <i class="fa-solid fa-box-archive text-blue-500"></i>
@@ -235,7 +244,10 @@
                                 <!-- Foto Bukti Pengiriman -->
                                 @if($order->proof_image)
                                 <button type="button"
-                                    onclick="openPhotoLightbox('{{ $order->proof_image_url }}', '{{ $order->tracking_number }}', '{{ addslashes($order->notes ?? 'Paket telah terkirim.') }}')"
+                                    data-url="{{ $order->proof_image_url }}"
+                                    data-title="{{ $order->tracking_number }}"
+                                    data-notes="{{ $order->notes ?? 'Paket telah terkirim.' }}"
+                                    onclick="openPhotoLightbox(this.dataset.url, this.dataset.title, this.dataset.notes)"
                                     class="inline-flex items-center gap-1 text-[10px] text-emerald-700 font-bold hover:underline mt-0.5 block">
                                     <i class="fa-solid fa-camera"></i>
                                     <span>Lihat Bukti Foto</span>
@@ -268,7 +280,13 @@
 
                                 <!-- 2. Print / Lihat Label Barcode Resi (1D Code 39) -->
                                 <button type="button"
-                                    onclick="showBarcodeModal('{{ $order->tracking_number }}', '{{ $order->barcode_url }}', '{{ addslashes($order->sender_name) }}', '{{ addslashes($order->destination) }}', '{{ $order->id }}', '{{ $order->kode_barang }}')"
+                                    data-resi="{{ $order->tracking_number }}"
+                                    data-barcode="{{ $order->barcode_url }}"
+                                    data-sender="{{ $order->sender_name }}"
+                                    data-destination="{{ $order->destination }}"
+                                    data-id="{{ $order->id }}"
+                                    data-kode="{{ $order->kode_barang }}"
+                                    onclick="showBarcodeModal(this.dataset.resi, this.dataset.barcode, this.dataset.sender, this.dataset.destination, this.dataset.id, this.dataset.kode)"
                                     title="Lihat Barcode Resi"
                                     class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs transition">
                                     <i class="fa-solid fa-barcode text-sm"></i>
@@ -283,7 +301,9 @@
 
                                 <!-- 4. Hapus Pesanan (Buka Modal Konfirmasi Modern) -->
                                 <button type="button"
-                                    onclick="openDeleteOrderModal('{{ $order->id }}', '{{ $order->tracking_number }}')"
+                                    data-id="{{ $order->id }}"
+                                    data-resi="{{ $order->tracking_number }}"
+                                    onclick="openDeleteOrderModal(this.dataset.id, this.dataset.resi)"
                                     title="Hapus Pesanan"
                                     class="p-2 rounded-xl bg-slate-100 hover:bg-rose-100 text-slate-400 hover:text-rose-600 text-xs transition">
                                     <i class="fa-solid fa-trash"></i>
