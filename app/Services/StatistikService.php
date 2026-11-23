@@ -9,19 +9,19 @@ use Illuminate\Support\Facades\DB;
 class StatistikService
 {
     /**
-     * Tren Transaksi / Pengiriman per Bulan (Slide 4 & 5)
+     * Tren Transaksi / Pengiriman per Bulan
      * Mengelompokkan data pengiriman paket dan omset dalam rentang bulan tertentu
      *
      * @param  int  $bulan  Jumlah bulan ke belakang (default: 6)
      */
     public function transaksiPerBulan(int $bulan = 6): array
     {
-        // Whitelist validasi rentang bulan (Slide 12: 3, 6, 12)
+        // Whitelist validasi rentang bulan
         $bulan = in_array($bulan, [3, 6, 12], true) ? $bulan : 6;
 
         $startDate = Carbon::now()->subMonths($bulan - 1)->startOfMonth();
 
-        // Agregasi di level database dengan DB::raw dan groupBy (Slide 4 & 15)
+        // Agregasi di level database dengan DB::raw dan groupBy
         $dateExpr = DB::getDriverName() === 'sqlite'
             ? "strftime('%Y-%m', created_at)"
             : "DATE_FORMAT(created_at, '%Y-%m')";
@@ -44,7 +44,7 @@ class StatistikService
         $dataOmset = [];
         $dataTerkirim = [];
 
-        // Buat array periode bulanan berurutan (tanpa bulan bolong)
+        // Buat array periode bulanan berurutan
         for ($i = $bulan - 1; $i >= 0; $i--) {
             $date = Carbon::now()->subMonths($i);
             $key = $date->format('Y-m');
@@ -76,7 +76,7 @@ class StatistikService
     }
 
     /**
-     * Komposisi Status Transaksi / Pengiriman (Slide 4 & 5 - Doughnut Chart)
+     * Komposisi Status Transaksi / Pengiriman
      */
     public function statusTransaksi(): array
     {
@@ -103,7 +103,7 @@ class StatistikService
     }
 
     /**
-     * Volume Pengiriman per Layanan / Kategori Kargo (Slide 4 & 5 - Bar Chart)
+     * Volume Pengiriman per Layanan / Kategori Kargo
      */
     public function jumlahBarangPerKategori(int $limit = 6): array
     {
@@ -129,7 +129,7 @@ class StatistikService
     }
 
     /**
-     * Top Rute / Destinasi Pengiriman Terbanyak (Slide 4 & 5 - Horizontal Bar Chart)
+     * Top Rute / Destinasi Pengiriman Terbanyak
      */
     public function topBarangDipinjam(int $limit = 5): array
     {

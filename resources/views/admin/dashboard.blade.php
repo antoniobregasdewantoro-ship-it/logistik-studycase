@@ -47,7 +47,7 @@
                         </p>
                     </div>
 
-                    <!-- Tombol Filter Periode (Slide 12: 3 Bulan / 6 Bulan / 12 Bulan) -->
+                    <!-- Tombol Filter Periode  -->
                     <div class="inline-flex items-center bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl self-start sm:self-auto border border-slate-200/50 dark:border-slate-700/50">
                         <a href="{{ route('admin.dashboard', ['bulan' => 3]) }}"
                            class="px-3 py-1.5 rounded-lg text-xs font-bold transition {{ ($jumlahBulan ?? 6) == 3 ? 'bg-[#FF6B00] text-white shadow-sm' : 'text-slate-600 dark:text-slate-300 hover:text-[#0A1128] dark:hover:text-white' }}">
@@ -64,7 +64,7 @@
                     </div>
                 </div>
 
-                <!-- Canvas Chart Tren -->
+                <!-- Canvas Chart Tren  tinggi grafik garis-->
                 <div class="relative w-full h-[270px]">
                     <canvas id="chartTrenTransaksi"></canvas>
                 </div>
@@ -116,7 +116,7 @@
                     Komposisi manifest pesanan terkirim, transit kurir, dan verifikasi
                 </p>
 
-                <!-- Canvas Doughnut Chart dengan Persentase di Tengah Donat & di Slices -->
+                <!-- tinggi grafik bulat-->
                 <div class="relative w-full h-[210px] flex items-center justify-center">
                     <canvas id="chartStatusTransaksi"></canvas>
                     <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
@@ -401,9 +401,9 @@
 @endsection
 
 @push('scripts')
-<!-- Payload Data JSON dari Backend (Slide 9 - Disimpan dalam script JSON agar bebas error linter di VS Code) -->
-<script id="trenDataPayload" type="application/json">@json($trenPengiriman ?? ['labels' => [], 'data' => [], 'terkirim' => []])</script>
-<script id="statusDataPayload" type="application/json">@json($statusPesanan ?? ['labels' => [], 'data' => [], 'colors' => []])</script>
+<!-- Payload Data JSON dari Backend  -->
+<script id="trenDataPayload" type="application/json">@json($trenPengiriman)</script>
+<script id="statusDataPayload" type="application/json">@json($statusPesanan)</script>
 
 <script>
     // Search table filter
@@ -483,13 +483,16 @@
         // 1. Ambil Data Backend via JSON payload (Slide 9)
         const trenEl = document.getElementById('trenDataPayload');
         const statusEl = document.getElementById('statusDataPayload');
-        const trenData = trenEl ? JSON.parse(trenEl.textContent || '{}') : { labels: [], data: [], terkirim: [] };
-        const statusData = statusEl ? JSON.parse(statusEl.textContent || '{}') : { labels: [], data: [], colors: [] };
+        const trenData = trenEl ? JSON.parse(trenEl.textContent || '{}') : { labels: [], data: [], terkirim: [], colors: { primary: '#FF6B00', success: '#10B981' } };
+        const statusData = statusEl ? JSON.parse(statusEl.textContent || '{}') : { labels: [], data: [], colors: ['#10B981', '#3B82F6', '#FF6B00'] };
 
         // 2. Render Line Chart: Tren Pengiriman 
         const canvasTren = document.getElementById('chartTrenTransaksi');
         if (canvasTren) {
             const ctxTren = canvasTren.getContext('2d');
+            const primaryColor = trenData.colors?.primary || '#FF6B00';
+            const successColor = trenData.colors?.success || '#10B981';
+
             const gradientOrange = ctxTren.createLinearGradient(0, 0, 0, 260);
             gradientOrange.addColorStop(0, 'rgba(255, 107, 0, 0.35)');
             gradientOrange.addColorStop(1, 'rgba(255, 107, 0, 0.00)');
@@ -502,12 +505,12 @@
                         {
                             label: 'Total Manifest',
                             data: trenData.data,
-                            borderColor: '#FF6B00',
+                            borderColor: primaryColor,
                             backgroundColor: gradientOrange,
                             borderWidth: 3,
                             fill: true,
                             tension: 0.4,
-                            pointBackgroundColor: '#FF6B00',
+                            pointBackgroundColor: primaryColor,
                             pointBorderColor: '#fff',
                             pointBorderWidth: 2,
                             pointRadius: 4,
@@ -516,12 +519,12 @@
                         {
                             label: 'Paket Terkirim',
                             data: trenData.terkirim,
-                            borderColor: '#10B981',
+                            borderColor: successColor,
                             backgroundColor: 'transparent',
                             borderWidth: 2,
                             borderDash: [5, 5],
                             tension: 0.4,
-                            pointBackgroundColor: '#10B981',
+                            pointBackgroundColor: successColor,
                             pointBorderColor: '#fff',
                             pointBorderWidth: 2,
                             pointRadius: 3,
@@ -544,6 +547,7 @@
                                 boxWidth: 10,
                                 usePointStyle: true,
                                 pointStyle: 'circle',
+                                //ubah font grafik chart
                                 font: {
                                     family: "'Plus Jakarta Sans', sans-serif",
                                     weight: 'bold',
@@ -618,6 +622,7 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    //ketebalan grafik
                     cutout: '72%',
                     plugins: {
                         legend: { display: false },
