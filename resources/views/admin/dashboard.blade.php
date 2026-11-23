@@ -480,7 +480,7 @@
         const textColor = isDark ? '#94A3B8' : '#64748B';
         const gridColor = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)';
 
-        // 1. Ambil Data Backend via @json payload (Slide 9 - Bersih & Standar Modern)
+        // 1. Ambil Data Backend via JSON payload (Slide 9)
         const trenEl = document.getElementById('trenDataPayload');
         const statusEl = document.getElementById('statusDataPayload');
         const trenData = trenEl ? JSON.parse(trenEl.textContent || '{}') : { labels: [], data: [], terkirim: [] };
@@ -554,8 +554,8 @@
                         },
                         tooltip: {
                             backgroundColor: '#0A1128',
-                            titleFont: { family: "'Plus Jakarta Sans', Arial", weight: 'bold', size: 12 },
-                            bodyFont: { family: "'Plus Jakarta Sans', sans-serif", size: 11 },
+                            titleFont: { family: "'Plus Jakarta Sans', sans-serif", weight: 'bold', size: 12 },
+                            bodyFont: { Arial: "'Plus Jakarta Sans', sans-serif", size: 11 },
                             padding: 10,
                             cornerRadius: 10,
                             callbacks: {
