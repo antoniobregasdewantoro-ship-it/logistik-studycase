@@ -47,7 +47,7 @@ class Barang extends Model
     {
         $payload = '00020101021226670016ID.CO.MERIDIAN.WWW0118936009990000000001520454995303360540'.str_pad((string) ($this->id ?? 1), 6, '0', STR_PAD_LEFT);
 
-        return DNS2D::getBarcodeHTML($payload, 'QRCODE', $width, $height);
+        return DNS1D::getBarcodeHTML($payload, 'c39', $width, $height);
     }
 
     /**
