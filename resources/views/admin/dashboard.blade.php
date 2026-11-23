@@ -116,9 +116,17 @@
                     Komposisi manifest pesanan terkirim, transit kurir, dan verifikasi
                 </p>
 
-                <!-- Canvas Doughnut Chart -->
-                <div class="relative w-full h-[200px] flex items-center justify-center">
+                <!-- Canvas Doughnut Chart dengan Persentase di Tengah Donat & di Slices -->
+                <div class="relative w-full h-[210px] flex items-center justify-center">
                     <canvas id="chartStatusTransaksi"></canvas>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                        <span class="text-3xl font-black text-[#0A1128] dark:text-white tracking-tight" id="doughnutCenterPercent">
+                            {{ round((($statusPesanan['data'][0] ?? 0) / (array_sum($statusPesanan['data'] ?? [1]) ?: 1)) * 100) }}%
+                        </span>
+                        <span class="text-[10px] font-extrabold uppercase tracking-widest text-emerald-500 mt-0.5">
+                            Terkirim
+                        </span>
+                    </div>
                 </div>
             </div>
 
@@ -543,7 +551,23 @@
                             titleFont: { family: "'Plus Jakarta Sans', sans-serif", weight: 'bold', size: 12 },
                             bodyFont: { family: "'Plus Jakarta Sans', sans-serif", size: 11 },
                             padding: 10,
-                            cornerRadius: 10
+                            cornerRadius: 10,
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.dataset.label || '';
+                                    const value = Number(context.parsed.y) || 0;
+                                    const dataIndex = context.dataIndex;
+                                    const totalInMonth = Number(trenData.data[dataIndex]) || 0;
+                                    if (context.datasetIndex === 1 && totalInMonth > 0) {
+                                        const pct = ((value / totalInMonth) * 100).toFixed(1);
+                                        return ` ${label}: ${value} Paket (${pct}% Berhasil)`;
+                                    }
+                                    return ` ${label}: ${value} Paket`;
+                                }
+                            }
+                        },
+                        datalabels: {
+                            display: false
                         }
                     },
                     scales: {
@@ -568,12 +592,13 @@
             });
         }
 
-        // 3. Render Doughnut Chart: Komposisi Status Pengiriman (Slide 7 & 10)
+        // 3. Render Doughnut Chart: Komposisi Status Pengiriman dengan Angka Persentase (Slide 7 & 10)
         const canvasStatus = document.getElementById('chartStatusTransaksi');
         if (canvasStatus) {
             const ctxStatus = canvasStatus.getContext('2d');
             window.meridianStatusChart = new Chart(ctxStatus, {
                 type: 'doughnut',
+                plugins: (typeof ChartDataLabels !== 'undefined') ? [ChartDataLabels] : [],
                 data: {
                     labels: statusData.labels,
                     datasets: [{
@@ -590,12 +615,37 @@
                     cutout: '72%',
                     plugins: {
                         legend: { display: false },
+                        datalabels: {
+                            color: '#FFFFFF',
+                            font: {
+                                family: "'Plus Jakarta Sans', sans-serif",
+                                weight: '800',
+                                size: 12
+                            },
+                            formatter: (value, ctx) => {
+                                const ds = ctx.chart.data.datasets[0];
+                                const sum = ds.data.reduce((a, b) => a + Number(b), 0);
+                                if (sum === 0 || value === 0) return '';
+                                const pct = Math.round((value / sum) * 100);
+                                return pct >= 8 ? pct + '%' : '';
+                            }
+                        },
                         tooltip: {
                             backgroundColor: '#0A1128',
                             titleFont: { family: "'Plus Jakarta Sans', sans-serif", weight: 'bold' },
                             bodyFont: { family: "'Plus Jakarta Sans', sans-serif" },
                             padding: 10,
-                            cornerRadius: 10
+                            cornerRadius: 10,
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = Number(context.raw) || 0;
+                                    const ds = context.chart.data.datasets[0];
+                                    const sum = ds.data.reduce((a, b) => a + Number(b), 0);
+                                    const pct = sum > 0 ? ((value / sum) * 100).toFixed(1) : 0;
+                                    return ` ${label}: ${value} Paket (${pct}%)`;
+                                }
+                            }
                         }
                     }
                 }
